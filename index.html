@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise MeterIQ Suite</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- Custom Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Feather Icons for a clean look -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+
+    <style>
+        /* Custom styles to complement Tailwind */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* A light gray background */
+        }
+        /* Custom scrollbar for a better look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Style for the main content area to prevent layout shifts */
+        #main-content > div {
+            display: none;
+        }
+        #main-content > div.active {
+            display: block;
+        }
+        /* Animation for modals */
+        .modal-enter {
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="antialiased text-slate-700">
+
+    <!-- Login Container -->
+    <div id="login-container" class="min-h-screen flex items-center justify-center bg-slate-100 p-4">
+        <div class="w-full max-w-md">
+            <div class="bg-white p-8 rounded-2xl shadow-lg">
+                <h1 class="text-3xl font-bold text-slate-800 text-center mb-2">MeterIQ Suite</h1>
+                <p class="text-slate-500 text-center mb-8">Secure Sign-In</p>
+                <form id="login-form">
+                    <div class="mb-4">
+                        <label for="email" class="block text-sm font-medium text-slate-600 mb-1">Email</label>
+                        <input type="email" id="email" value="admin@meteriq.com" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="password" class="block text-sm font-medium text-slate-600 mb-1">Password</label>
+                        <input type="password" id="password" value="admin123" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300">Login</button>
+                </form>
+            </div>
+            <p class="text-center text-xs text-slate-500 mt-6">By signing in, you agree to our Terms of Service.</p>
+        </div>
+    </div>
+
+    <!-- OTP Verification Container -->
+    <div id="otp-container" class="min-h-screen flex items-center justify-center bg-slate-100 p-4 hidden">
+        <div class="w-full max-w-md">
+            <div class="bg-white p-8 rounded-2xl shadow-lg">
+                <h1 class="text-3xl font-bold text-slate-800 text-center mb-2">Two-Factor Authentication</h1>
+                <p class="text-slate-500 text-center mb-8">An OTP has been sent. Please check your server console.</p>
+                <form id="otp-form">
+                    <div class="mb-4">
+                        <label for="otp" class="block text-sm font-medium text-slate-600 mb-1">OTP Code</label>
+                        <input type="text" id="otp" class="w-full px-4 py-2 text-center text-2xl tracking-widest border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300">Verify Code</button>
+                </form>
+                <button id="back-to-login" class="w-full mt-4 text-sm text-slate-600 hover:text-blue-600">Back to Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div id="app-container" class="hidden">
+        <div class="flex h-screen bg-slate-100">
+            <!-- Sidebar Navigation -->
+            <aside id="sidebar" class="w-64 bg-white shadow-md flex flex-col">
+                <div class="p-6 border-b border-slate-200">
+                    <img src="logo.png" alt="MeterIQ" class="h-8 mb-2">
+                    <h1 class="text-2xl font-bold text-slate-800">MeterIQ</h1>
+                </div>
+                <nav class="flex-1 px-4 py-4 space-y-2">
+                    <a href="#" class="tab-link flex items-center px-4 py-2 text-slate-700 rounded-lg hover:bg-slate-100" data-tab="dashboard">
+                        <i data-feather="grid" class="w-5 h-5 mr-3"></i> Dashboard
+                    </a>
+                    <a href="#" class="tab-link flex items-center px-4 py-2 text-slate-700 rounded-lg hover:bg-slate-100" data-tab="submit-reading">
+                        <i data-feather="edit" class="w-5 h-5 mr-3"></i> Submit Reading
+                    </a>
+                    <a href="#" class="tab-link flex items-center px-4 py-2 text-slate-700 rounded-lg hover:bg-slate-100" data-tab="tasks">
+                        <i data-feather="list" class="w-5 h-5 mr-3"></i> Tasks
+                    </a>
+                    <a href="#" class="tab-link flex items-center px-4 py-2 text-slate-700 rounded-lg hover:bg-slate-100" data-tab="reports">
+                        <i data-feather="file-text" class="w-5 h-5 mr-3"></i> Reports
+                    </a>
+                    <a href="#" class="tab-link flex items-center px-4 py-2 text-slate-700 rounded-lg hover:bg-slate-100" data-tab="analytics">
+                        <i data-feather="bar-chart-2" class="w-5 h-5 mr-3"></i> Analytics
+                    </a>
+                    <a href="#" class="tab-link flex items-center px-4 py-2 text-slate-700 rounded-lg hover:bg-slate-100" data-tab="admin">
+                        <i data-feather="settings" class="w-5 h-5 mr-3"></i> Admin
+                    </a>
+                </nav>
+                <div class="p-4 border-t border-slate-200">
+                    <div id="user-info" class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold mr-3" id="user-initials"></div>
+                        <div>
+                            <p class="font-semibold text-sm text-slate-800" id="user-fullname"></p>
+                            <p class="text-xs text-slate-500" id="user-role"></p>
+                        </div>
+                    </div>
+                    <button id="logout" class="w-full mt-4 flex items-center justify-center py-2 px-4 text-sm font-medium text-slate-600 rounded-lg hover:bg-slate-100 transition">
+                        <i data-feather="log-out" class="w-4 h-4 mr-2"></i> Logout
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 p-6 lg:p-8 overflow-y-auto">
+                <div id="main-content">
+                    <!-- Dashboard Content -->
+                    <div id="dashboard-content">
+                        <h2 class="text-3xl font-bold text-slate-800 mb-6">Dashboard</h2>
+                        <!-- KPIs -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                            <div class="bg-white p-6 rounded-xl shadow-sm"><h3 id="total-readings" class="text-3xl font-bold">0</h3><p class="text-slate-500">Total Readings</p></div>
+                            <div class="bg-white p-6 rounded-xl shadow-sm"><h3 id="critical-alerts" class="text-3xl font-bold text-red-500">0</h3><p class="text-slate-500">Critical Alerts</p></div>
+                            <div class="bg-white p-6 rounded-xl shadow-sm"><h3 id="normal-readings" class="text-3xl font-bold text-green-500">0</h3><p class="text-slate-500">Normal Readings</p></div>
+                            <div class="bg-white p-6 rounded-xl shadow-sm"><h3 id="active-sites" class="text-3xl font-bold">0</h3><p class="text-slate-500">Active Sites</p></div>
+                            <div class="bg-white p-6 rounded-xl shadow-sm"><h3 id="co2-reduction" class="text-3xl font-bold">0</h3><p class="text-slate-500">CO2 Reduction</p></div>
+                        </div>
+                        <!-- Recent Activity & Alerts -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-800 mb-4">Recent Readings</h3>
+                                <div id="recent-activity" class="bg-white p-4 rounded-xl shadow-sm space-y-3"></div>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-800 mb-4">Open Alerts</h3>
+                                <div id="alerts" class="bg-white p-4 rounded-xl shadow-sm space-y-3"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Reading Content -->
+                    <div id="submit-reading-content">
+                        <h2 class="text-3xl font-bold text-slate-800 mb-6">Submit Meter Reading</h2>
+                        <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-sm">
+                            <form id="submit-reading-form" enctype="multipart/form-data">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="form-group">
+                                        <label for="site-select" class="block text-sm font-medium text-slate-600 mb-1">Site</label>
+                                        <select id="site-select" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required><option value="">Select a site</option></select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="meter-select" class="block text-sm font-medium text-slate-600 mb-1">Meter</label>
+                                        <select id="meter-select" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required><option value="">Select a meter</option></select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                    <div class="form-group">
+                                        <label for="previous-reading" class="block text-sm font-medium text-slate-600 mb-1">Previous Reading</label>
+                                        <input type="number" id="previous-reading" class="w-full px-4 py-2 bg-slate-100 border border-slate-300 rounded-lg" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="current-reading" class="block text-sm font-medium text-slate-600 mb-1">Current Reading</label>
+                                        <input type="number" step="0.01" id="current-reading" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                        <small class="text-xs text-slate-500 mt-1">Current reading must be ≥ previous.</small>
+                                    </div>
+                                </div>
+                                <div class="form-group mt-6">
+                                    <label for="photo" class="block text-sm font-medium text-slate-600 mb-1">Photo (optional)</label>
+                                    <input type="file" id="photo" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                </div>
+                                <div class="form-group mt-6">
+                                    <label for="comments" class="block text-sm font-medium text-slate-600 mb-1">Comments</label>
+                                    <textarea id="comments" rows="4" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                                </div>
+                                <button type="submit" class="mt-6 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300">Submit Reading</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Tasks Content -->
+                    <div id="tasks-content">
+                        <h2 class="text-3xl font-bold text-slate-800 mb-6">Tasks</h2>
+                        <div id="tasks-list" class="bg-white p-6 rounded-xl shadow-sm mb-8">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">My Tasks</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm text-left" id="tasks-table">
+                                    <thead class="text-xs text-slate-500 uppercase bg-slate-50"><tr><th class="p-3">Description</th><th class="p-3">Site</th><th class="p-3">Meter</th><th class="p-3">Status</th><th class="p-3">Due Date</th><th class="p-3">Actions</th></tr></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="assign-task-form" class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-sm hidden">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">Assign Task</h3>
+                            <form id="task-form">
+                                <div class="mb-4">
+                                    <label for="technician-select" class="block text-sm font-medium text-slate-600 mb-1">Technician</label>
+                                    <select id="technician-select" class="w-full px-4 py-2 border border-slate-300 rounded-lg" required><option value="">Select technician</option></select>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="site-select-task" class="block text-sm font-medium text-slate-600 mb-1">Site</label>
+                                    <select id="site-select-task" class="w-full px-4 py-2 border border-slate-300 rounded-lg" required><option value="">Select site</option></select>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="meter-select-task" class="block text-sm font-medium text-slate-600 mb-1">Meter</label>
+                                    <select id="meter-select-task" class="w-full px-4 py-2 border border-slate-300 rounded-lg"><option value="">Select meter (optional)</option></select>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="description" class="block text-sm font-medium text-slate-600 mb-1">Description</label>
+                                    <textarea id="description" rows="4" class="w-full px-4 py-2 border border-slate-300 rounded-lg" required></textarea>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="due-date" class="block text-sm font-medium text-slate-600 mb-1">Due Date</label>
+                                    <input type="date" id="due-date" class="w-full px-4 py-2 border border-slate-300 rounded-lg" required>
+                                </div>
+                                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300">Assign Task</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Reports Content -->
+                    <div id="reports-content">
+                        <h2 class="text-3xl font-bold text-slate-800 mb-6">Generate Report</h2>
+                        <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-sm">
+                            <form id="report-form">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="from-date" class="block text-sm font-medium text-slate-600 mb-1">From Date</label>
+                                        <input type="date" id="from-date" class="w-full px-4 py-2 border border-slate-300 rounded-lg" required>
+                                    </div>
+                                    <div>
+                                        <label for="to-date" class="block text-sm font-medium text-slate-600 mb-1">To Date</label>
+                                        <input type="date" id="to-date" class="w-full px-4 py-2 border border-slate-300 rounded-lg" required>
+                                    </div>
+                                </div>
+                                <div class="mt-6">
+                                    <label for="format-select" class="block text-sm font-medium text-slate-600 mb-1">Format</label>
+                                    <select id="format-select" class="w-full px-4 py-2 border border-slate-300 rounded-lg">
+                                        <option value="csv">CSV</option>
+                                        <option value="excel">Excel</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="mt-6 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300">Generate and Download</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Content -->
+                    <div id="analytics-content">
+                        <h2 class="text-3xl font-bold text-slate-800 mb-6">Analytics</h2>
+                        <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-bold text-slate-800">Readings Over Time</h3>
+                                <div class="flex space-x-2">
+                                    <button class="time-filter px-3 py-1 text-sm rounded-md bg-slate-200" data-days="7">7D</button>
+                                    <button class="time-filter px-3 py-1 text-sm rounded-md bg-blue-500 text-white" data-days="30">30D</button>
+                                    <button class="time-filter px-3 py-1 text-sm rounded-md bg-slate-200" data-days="90">90D</button>
+                                </div>
+                                <select id="chart-type" class="ml-4 px-3 py-1 text-sm rounded-md bg-slate-200">
+                                    <option value="line">Line</option>
+                                    <option value="bar">Bar</option>
+                                </select>
+                            </div>
+                            <canvas id="readings-chart"></canvas>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="bg-white p-6 rounded-xl shadow-sm">
+                                <h3 class="text-xl font-bold text-slate-800 mb-4">Status Distribution</h3>
+                                <canvas id="status-chart"></canvas>
+                            </div>
+                            <div class="bg-white p-6 rounded-xl shadow-sm">
+                                <h3 class="text-xl font-bold text-slate-800 mb-4">System Overview</h3>
+                                <div class="space-y-4">
+                                    <div class="flex justify-between items-center"><span class="text-slate-500">Active Sites</span><span id="total-sites" class="font-bold text-lg">0</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-500">Online Meters</span><span id="total-meters" class="font-bold text-lg">0</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-500">Active Technicians</span><span id="total-techs" class="font-bold text-lg">0</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-500">System Status</span><span id="system-status" class="font-bold text-lg text-green-500">Good</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Admin Content -->
+                    <div id="admin-content">
+                        <h2 class="text-3xl font-bold text-slate-800 mb-6">Admin Panel</h2>
+                        <!-- User Management -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-bold text-slate-800">User Management</h3>
+                                <button id="new-user-btn" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-600">New User</button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm text-left" id="users-table">
+                                    <thead class="text-xs text-slate-500 uppercase bg-slate-50"><tr><th class="p-3">Email</th><th class="p-3">Name</th><th class="p-3">Role</th><th class="p-3">Actions</th></tr></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- Site Management -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-bold text-slate-800">Site Management</h3>
+                                <button id="new-site-btn" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-600">New Site</button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm text-left" id="sites-table">
+                                    <thead class="text-xs text-slate-500 uppercase bg-slate-50"><tr><th class="p-3">Name</th><th class="p-3">Address</th><th class="p-3">Status</th><th class="p-3">Actions</th></tr></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- Audit Log -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">Audit Log</h3>
+                            <div class="overflow-x-auto max-h-96">
+                                <table class="w-full text-sm text-left" id="audit-log-table">
+                                    <thead class="text-xs text-slate-500 uppercase bg-slate-50 sticky top-0"><tr><th class="p-3">Timestamp</th><th class="p-3">User ID</th><th class="p-3">Action</th><th class="p-3">Target</th><th class="p-3">Details</th></tr></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Generic Modal Structure -->
+    <div id="modal-container" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div id="modal-content" class="bg-white rounded-2xl shadow-lg w-full max-w-md p-8 modal-enter">
+            <!-- Modal content will be injected here -->
+        </div>
+    </div>
+
+<script>
+    // --- CONFIGURATION ---
+    const API_BASE = '/api'; // Use relative path for deployment
+    let currentUserId = null;
+    let currentUser = null;
+    let readingsChart = null;
+    let statusChart = null;
+
+    // --- DOM ELEMENTS ---
+    const loginContainer = document.getElementById('login-container');
+    const otpContainer = document.getElementById('otp-container');
+    const appContainer = document.getElementById('app-container');
+    const mainContent = document.getElementById('main-content');
+    const modalContainer = document.getElementById('modal-container');
+    const modalContent = document.getElementById('modal-content');
+
+    // --- UTILITY FUNCTIONS ---
+
+    /**
+     * Fetches data from the API with authentication headers.
+     * @param {string} endpoint - The API endpoint to call.
+     * @param {object} options - Fetch options (method, headers, body).
+     * @returns {Promise<Response>} The fetch response.
+     */
+    async function fetchWithAuth(endpoint, options = {}) {
+        const token = localStorage.getItem('session_token');
+        if (!token) {
+            showView('login');
+            throw new Error('No session token');
+        }
+        
+        options.headers = { ...options.headers, 'Authorization': token };
+        
+        if (options.body && !(options.body instanceof FormData)) {
+            options.headers['Content-Type'] = 'application/json';
+            options.body = JSON.stringify(options.body);
+        }
+        
+        const response = await fetch(`${API_BASE}${endpoint}`, options);
+        
+        if (response.status === 401) {
+            alert('Session expired. Please log in again.');
+            logout();
+        }
+        return response;
+    }
+
+    /**
+     * Controls which main view is visible (login, otp, app).
+     * @param {string} view - The view to show ('login', 'otp', 'app').
+     */
+    function showView(view) {
+        loginContainer.classList.add('hidden');
+        otpContainer.classList.add('hidden');
+        appContainer.classList.add('hidden');
+        document.getElementById(`${view}-container`).classList.remove('hidden');
+    }
+
+    /**
+     * Controls which content tab is visible within the main app.
+     * @param {string} tabId - The ID of the tab to show.
+     */
+    function showTab(tabId) {
+        // Deactivate all content panes
+        mainContent.querySelectorAll(':scope > div').forEach(div => div.classList.remove('active'));
+        // Deactivate all tab links
+        document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('bg-slate-100', 'font-semibold'));
+        
+        // Activate the selected tab and content
+        document.getElementById(`${tabId}-content`).classList.add('active');
+        const activeLink = document.querySelector(`.tab-link[data-tab='${tabId}']`);
+        if(activeLink) {
+            activeLink.classList.add('bg-slate-100', 'font-semibold');
+        }
+    }
+    
+    /**
+     * Shows a modal with the provided HTML content.
+     * @param {string} htmlContent - The HTML to inject into the modal.
+     */
+    function showModal(htmlContent) {
+        modalContent.innerHTML = htmlContent;
+        modalContainer.classList.remove('hidden');
+    }
+
+    /**
+     * Hides the modal.
+     */
+    function hideModal() {
+        modalContainer.classList.add('hidden');
+        modalContent.innerHTML = '';
+    }
+
+    // --- INITIALIZATION & AUTHENTICATION ---
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Set default date for report form
+        const today = new Date().toISOString().split('T')[0];
+        const monthAgo = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0];
+        document.getElementById('to-date').value = today;
+        document.getElementById('from-date').value = monthAgo;
+
+        // Check for existing session token
+        const token = localStorage.getItem('session_token');
+        if (token) {
+            // If a token exists, try to "re-login" to verify it and get user data
+            const storedUser = localStorage.getItem('current_user');
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+                initializeAppUI();
+            } else {
+                logout(); // If user data is missing, clear session
+            }
+        } else {
+            showView('login');
+        }
+        
+        // Initialize Feather Icons
+        feather.replace();
+        setupEventListeners();
+    });
+
+    function setupEventListeners() {
+        document.getElementById('login-form').addEventListener('submit', handleLogin);
+        document.getElementById('otp-form').addEventListener('submit', handleOtpVerification);
+        document.getElementById('back-to-login').addEventListener('click', () => showView('login'));
+        document.getElementById('logout').addEventListener('click', logout);
+
+        document.querySelectorAll('.tab-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tabId = link.dataset.tab;
+                showTab(tabId);
+                // Load data for the clicked tab
+                switch (tabId) {
+                    case 'dashboard': loadDashboard(); break;
+                    case 'submit-reading': loadSubmitReading(); break;
+                    case 'tasks': loadTasks(); break;
+                    case 'analytics': loadAnalytics(30); break;
+                    case 'admin': loadAdmin(); break;
+                }
+            });
+        });
+        
+        document.getElementById('submit-reading-form').addEventListener('submit', handleSubmitReading);
+        document.getElementById('report-form').addEventListener('submit', handleGenerateReport);
+        document.querySelectorAll('.time-filter').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.time-filter').forEach(b => b.classList.remove('bg-blue-500', 'text-white'));
+                btn.classList.add('bg-blue-500', 'text-white');
+                loadAnalytics(parseInt(btn.dataset.days));
+            });
+        });
+
+        // Modal-related event listeners
+        document.getElementById('new-user-btn').addEventListener('click', showNewUserModal);
+        document.getElementById('new-site-btn').addEventListener('click', showNewSiteModal);
+        
+        // Close modal on background click
+        modalContainer.addEventListener('click', (e) => {
+            if (e.target.id === 'modal-container') {
+                hideModal();
+            }
+        });
+    }
+
+    async function handleLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        try {
+            const response = await fetch(`${API_BASE}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                currentUserId = data.user_id;
+                showView('otp');
+            } else {
+                alert(data.error || 'Login failed');
+            }
+        } catch (error) {
+            alert('Login error: ' + error.message);
+        }
+    }
+
+    async function handleOtpVerification(e) {
+        e.preventDefault();
+        const otp = document.getElementById('otp').value;
+        try {
+            const response = await fetch(`${API_BASE}/verify-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: currentUserId, otp })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                localStorage.setItem('session_token', data.token);
+                localStorage.setItem('current_user', JSON.stringify(data.user));
+                currentUser = data.user;
+                initializeAppUI();
+            } else {
+                alert(data.error || 'OTP verification failed');
+            }
+        } catch (error) {
+            alert('OTP verification error: ' + error.message);
+        }
+    }
+    
+    function initializeAppUI() {
+        showView('app');
+        
+        // Setup user info in sidebar
+        const { full_name, role } = currentUser;
+        document.getElementById('user-fullname').textContent = full_name;
+        document.getElementById('user-role').textContent = role.charAt(0).toUpperCase() + role.slice(1);
+        document.getElementById('user-initials').textContent = full_name.split(' ').map(n => n[0]).join('');
+
+        // Adjust UI based on role
+        const rolePermissions = {
+            'admin': ['dashboard', 'submit-reading', 'tasks', 'reports', 'analytics', 'admin'],
+            'technician': ['dashboard', 'submit-reading', 'tasks', 'reports', 'analytics'],
+            'executive': ['dashboard', 'reports', 'analytics']
+        };
+        
+        document.querySelectorAll('.tab-link').forEach(link => {
+            if (rolePermissions[role].includes(link.dataset.tab)) {
+                link.style.display = 'flex';
+            } else {
+                link.style.display = 'none';
+            }
+        });
+        
+        // Load initial tab
+        showTab('dashboard');
+        loadDashboard();
+    }
+
+    function logout() {
+        localStorage.removeItem('session_token');
+        localStorage.removeItem('current_user');
+        currentUser = null;
+        currentUserId = null;
+        showView('login');
+    }
+
+    // --- DASHBOARD ---
+    async function loadDashboard() {
+        try {
+            const [statsRes, readingsRes, alertsRes] = await Promise.all([
+                fetchWithAuth('/dashboard'),
+                fetchWithAuth('/readings?page=1&per_page=5'),
+                fetchWithAuth('/alerts?status=open&page=1&per_page=5')
+            ]);
+            
+            const stats = await statsRes.json();
+            document.getElementById('total-readings').textContent = stats.total_readings;
+            document.getElementById('critical-alerts').textContent = stats.critical_alerts;
+            document.getElementById('normal-readings').textContent = stats.normal_readings;
+            document.getElementById('active-sites').textContent = stats.active_sites;
+            document.getElementById('co2-reduction').textContent = stats.co2_reduction;
+
+            const readings = await readingsRes.json();
+            const activityList = document.getElementById('recent-activity');
+            activityList.innerHTML = readings.readings.length ? readings.readings.map(r => `
+                <div class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50">
+                    <div>
+                        <p class="font-semibold text-sm">${r.site_name} - ${r.meter_identifier}</p>
+                        <p class="text-xs text-slate-500">${new Date(r.reading_date).toLocaleString()}</p>
+                    </div>
+                    <span class="text-sm font-bold ${r.status === 'critical' ? 'text-red-500' : r.status === 'warning' ? 'text-yellow-500' : 'text-green-500'}">${r.reading_value.toFixed(2)}</span>
+                    ${currentUser.role === 'admin' && !r.approved ? `<button onclick="approveReading(${r.id})" class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full hover:bg-green-200 ml-2">Approve</button>` : ''}
+                </div>
+            `).join('') : '<p class="text-center text-slate-500 p-4">No recent readings.</p>';
+
+            const alerts = await alertsRes.json();
+            const alertsList = document.getElementById('alerts');
+            alertsList.innerHTML = alerts.alerts.length ? alerts.alerts.map(a => `
+                <div class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50">
+                    <div>
+                        <p class="font-semibold text-sm">${a.site_name} - ${a.meter_identifier}</p>
+                        <p class="text-xs text-slate-500">${a.message}</p>
+                    </div>
+                    ${currentUser.role !== 'executive' ? `<button onclick="resolveAlert(${a.id})" class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full hover:bg-blue-200">Resolve</button>` : ''}
+                </div>
+            `).join('') : '<p class="text-center text-slate-500 p-4">No open alerts.</p>';
+
+        } catch (error) {
+            console.error('Error loading dashboard:', error);
+        }
+    }
+
+    async function approveReading(readingId) {
+        if (!confirm('Are you sure you want to approve this reading?')) return;
+        try {
+            const response = await fetchWithAuth(`/readings/${readingId}/approve`, { method: 'PUT' });
+            if (response.ok) {
+                alert('Reading approved');
+                loadDashboard();
+            } else {
+                const data = await response.json();
+                alert(data.error || 'Failed to approve reading');
+            }
+        } catch (error) {
+            alert('Error approving reading: ' + error.message);
+        }
+    }
+
+    async function resolveAlert(alertId) {
+        if (!confirm('Are you sure you want to resolve this alert?')) return;
+        try {
+            const response = await fetchWithAuth(`/alerts/${alertId}/resolve`, { method: 'PUT' });
+            if (response.ok) {
+                alert('Alert resolved');
+                loadDashboard();
+            } else {
+                const data = await response.json();
+                alert(data.error || 'Failed to resolve alert');
+            }
+        } catch (error) {
+            alert('Error resolving alert: ' + error.message);
+        }
+    }
+    
+    // --- SUBMIT READING ---
+    async function loadSubmitReading() {
+        try {
+            const siteSelect = document.getElementById('site-select');
+            const meterSelect = document.getElementById('meter-select');
+            
+            const sitesRes = await fetchWithAuth('/sites');
+            const sites = await sitesRes.json();
+            siteSelect.innerHTML = '<option value="">Select a site</option>' + sites.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+
+            siteSelect.onchange = async () => {
+                const siteId = siteSelect.value;
+                meterSelect.innerHTML = '<option value="">Loading...</option>';
+                document.getElementById('previous-reading').value = '';
+                if (!siteId) {
+                    meterSelect.innerHTML = '<option value="">Select a meter</option>';
+                    return;
+                }
+                const metersRes = await fetchWithAuth(`/meters?site_id=${siteId}`);
+                const meters = await metersRes.json();
+                meterSelect.innerHTML = '<option value="">Select a meter</option>' + meters.map(m => `<option value="${m.id}" data-last-reading="${m.last_reading}">${m.identifier}</option>`).join('');
+            };
+            
+            meterSelect.onchange = () => {
+                const selectedOption = meterSelect.options[meterSelect.selectedIndex];
+                document.getElementById('previous-reading').value = selectedOption.dataset.lastReading || 0;
+            };
+
+        } catch (error) {
+            console.error('Error loading submit reading form:', error);
+        }
+    }
+    
+    async function handleSubmitReading(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const meterId = document.getElementById('meter-select').value;
+        const siteId = document.getElementById('site-select').value;
+        const readingValue = document.getElementById('current-reading').value;
+        const photo = document.getElementById('photo').files[0];
+        
+        const submissionData = new FormData();
+        submissionData.append('site_id', siteId);
+        submissionData.append('meter_id', meterId);
+        submissionData.append('reading_value', readingValue);
+        submissionData.append('comments', document.getElementById('comments').value);
+        if (photo) submissionData.append('photo', photo);
+        
+        try {
+            const response = await fetchWithAuth('/readings', {
+                method: 'POST',
+                body: submissionData
+            });
+            if (response.ok) {
+                alert('Reading submitted successfully');
+                e.target.reset();
+                document.getElementById('previous-reading').value = '';
+                document.getElementById('meter-select').innerHTML = '<option value="">Select a meter</option>';
+                loadDashboard(); // Refresh dashboard data
+                showTab('dashboard');
+            } else {
+                const data = await response.json();
+                alert(data.error || 'Failed to submit reading');
+            }
+        } catch (error) {
+            alert('Error submitting reading: ' + error.message);
+        }
+    }
+
+    // --- TASKS ---
+    async function loadTasks() {
+        try {
+            const tasksRes = await fetchWithAuth('/tasks');
+            const tasks = await tasksRes.json();
+            const tasksTbody = document.getElementById('tasks-table').querySelector('tbody');
+            tasksTbody.innerHTML = tasks.tasks.length ? tasks.tasks.map(t => `
+                <tr class="border-b">
+                    <td class="p-3">${t.description}</td>
+                    <td class="p-3">${t.site_id}</td>
+                    <td class="p-3">${t.meter_id || 'N/A'}</td>
+                    <td class="p-3">${t.status}</td>
+                    <td class="p-3">${t.due_date || 'N/A'}</td>
+                    <td class="p-3">
+                        ${currentUser.role === 'technician' && t.status === 'pending' ? `<button onclick="markTaskCompleted(${t.id})" class="text-blue-600 hover:underline">Mark Completed</button>` : ''}
+                    </td>
+                </tr>
+            `).join('') : '<tr><td colspan="6" class="p-3 text-center text-slate-500">No tasks</td></tr>';
+
+            document.getElementById('assign-task-form').classList.toggle('hidden', currentUser.role !== 'admin');
+            if (currentUser.role === 'admin') {
+                const technicianSelect = document.getElementById('technician-select');
+                const siteSelectTask = document.getElementById('site-select-task');
+                const meterSelectTask = document.getElementById('meter-select-task');
+                
+                const usersRes = await fetchWithAuth('/users');
+                const users = await usersRes.json();
+                technicianSelect.innerHTML = '<option value="">Select technician</option>' + users.filter(u => u.role === 'technician').map(u => `<option value="${u.id}">${u.full_name}</option>`).join('');
+
+                const sitesRes = await fetchWithAuth('/sites');
+                const sites = await sitesRes.json();
+                siteSelectTask.innerHTML = '<option value="">Select site</option>' + sites.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+
+                siteSelectTask.onchange = async () => {
+                    const siteId = siteSelectTask.value;
+                    meterSelectTask.innerHTML = '<option value="">Select meter (optional)</option>';
+                    if (!siteId) return;
+                    const metersRes = await fetchWithAuth(`/meters?site_id=${siteId}`);
+                    const meters = await metersRes.json();
+                    meterSelectTask.innerHTML += meters.map(m => `<option value="${m.id}">${m.identifier}</option>`).join('');
+                };
+
+                document.getElementById('task-form').addEventListener('submit', handleAssignTask);
+            }
+        } catch (error) {
+            console.error('Error loading tasks:', error);
+        }
+    }
+
+    async function handleAssignTask(e) {
+        e.preventDefault();
+        const data = {
+            technician_id: document.getElementById('technician-select').value,
+            site_id: document.getElementById('site-select-task').value,
+            meter_id: document.getElementById('meter-select-task').value,
+            description: document.getElementById('description').value,
+            due_date: document.getElementById('due-date').value
+        };
+        try {
+            const response = await fetchWithAuth('/tasks', { method: 'POST', body: data });
+            if (response.ok) {
+                alert('Task assigned');
+                loadTasks();
+            } else {
+                alert((await response.json()).error);
+            }
+        } catch (error) {
+            alert('Error assigning task: ' + error.message);
+        }
+    }
+
+    async function markTaskCompleted(taskId) {
+        if (!confirm('Are you sure you want to mark this task as completed?')) return;
+        try {
+            const response = await fetchWithAuth(`/tasks/${taskId}`, { method: 'PUT', body: { status: 'completed' } });
+            if (response.ok) {
+                alert('Task completed');
+                loadTasks();
+            } else {
+                alert((await response.json()).error);
+            }
+        } catch (error) {
+            alert('Error marking task completed: ' + error.message);
+        }
+    }
+
+    // --- REPORTS ---
+    async function handleGenerateReport(e) {
+        e.preventDefault();
+        const startDate = document.getElementById('from-date').value;
+        const endDate = document.getElementById('to-date').value;
+        const format = document.getElementById('format-select').value;
+
+        try {
+            const response = await fetchWithAuth(`/reports?start_date=${startDate}&end_date=${endDate}&format=${format}`);
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `report_${startDate}_to_${endDate}.${format === 'excel' ? 'xlsx' : 'csv'}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+            } else {
+                const data = await response.json();
+                alert(data.error || 'Failed to generate report');
+            }
+        } catch (error) {
+            alert('Error generating report: ' + error.message);
+        }
+    }
+
+    // --- ANALYTICS ---
+    async function loadAnalytics(days) {
+        try {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(endDate.getDate() - days);
+            const from = startDate.toISOString().split('T')[0];
+            const to = endDate.toISOString().split('T')[0];
+
+            const [analyticsRes, readingsRes, statsRes] = await Promise.all([
+                fetchWithAuth(`/analytics/readings?from=${from}&to=${to}`),
+                fetchWithAuth('/readings'), // For status distribution
+                fetchWithAuth('/dashboard') // For overview stats
+            ]);
+
+            const analyticsData = await analyticsRes.json();
+            if (readingsChart) readingsChart.destroy();
+
+            const chartType = document.getElementById('chart-type').value;
+
+            readingsChart = new Chart(document.getElementById('readings-chart').getContext('2d'), {
+                type: chartType,
+                data: {
+                    labels: analyticsData.dates,
+                    datasets: [
+                        { label: 'Electric', data: analyticsData.electric, borderColor: '#3b82f6', tension: 0.1 },
+                        { label: 'Water', data: analyticsData.water, borderColor: '#f59e0b', tension: 0.1 },
+                        { label: 'Gas', data: analyticsData.gas, borderColor: '#ef4444', tension: 0.1 }
+                    ]
+                },
+                options: { scales: { x: { type: 'time', time: { unit: 'day' } } } }
+            });
+
+            document.getElementById('chart-type').onchange = () => loadAnalytics(days);
+
+            // Status distribution chart
+            const readingsData = await readingsRes.json();
+            const statusCounts = { normal: 0, warning: 0, critical: 0 };
+            readingsData.readings.forEach(r => statusCounts[r.status]++);
+            if (statusChart) statusChart.destroy();
+            statusChart = new Chart(document.getElementById('status-chart').getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: ['Normal', 'Warning', 'Critical'],
+                    datasets: [{
+                        data: [statusCounts.normal, statusCounts.warning, statusCounts.critical],
+                        backgroundColor: ['#22c55e', '#f59e0b', '#ef4444']
+                    }]
+                }
+            });
+            
+            // System overview stats
+            const stats = await statsRes.json();
+            document.getElementById('total-sites').textContent = stats.active_sites;
+            document.getElementById('total-meters').textContent = stats.total_meters;
+            document.getElementById('total-techs').textContent = stats.total_techs;
+            const systemStatusEl = document.getElementById('system-status');
+            systemStatusEl.textContent = stats.critical_alerts > 0 ? 'Attention Needed' : 'Good';
+            systemStatusEl.className = `font-bold text-lg ${stats.critical_alerts > 0 ? 'text-red-500' : 'text-green-500'}`;
+            
+        } catch (error) {
+            console.error('Error loading analytics:', error);
+        }
+    }
+
+    // --- ADMIN PANEL ---
+    async function loadAdmin() {
+        if (currentUser.role !== 'admin') return;
+        try {
+            const [usersRes, sitesRes, auditRes] = await Promise.all([
+                fetchWithAuth('/users'),
+                fetchWithAuth('/sites'),
+                fetchWithAuth('/audit_log')
+            ]);
+            
+            // Populate users table
+            const users = await usersRes.json();
+            const usersTbody = document.getElementById('users-table').querySelector('tbody');
+            usersTbody.innerHTML = users.map(u => `
+                <tr class="border-b">
+                    <td class="p-3">${u.email}</td>
+                    <td class="p-3">${u.full_name}</td>
+                    <td class="p-3">${u.role}</td>
+                    <td class="p-3 space-x-2">
+                        <button onclick="showEditUserModal(${u.id})" class="text-blue-600 hover:underline">Edit</button>
+                        <button onclick="deleteUser(${u.id})" class="text-red-600 hover:underline">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            // Populate sites table
+            const sites = await sitesRes.json();
+            const sitesTbody = document.getElementById('sites-table').querySelector('tbody');
+            sitesTbody.innerHTML = sites.map(s => `
+                <tr class="border-b">
+                    <td class="p-3">${s.name}</td>
+                    <td class="p-3">${s.address}</td>
+                    <td class="p-3"><span class="px-2 py-1 text-xs rounded-full ${s.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${s.status}</span></td>
+                    <td class="p-3 space-x-2">
+                        <button onclick="toggleSiteStatus(${s.id}, '${s.status}')" class="text-blue-600 hover:underline">Toggle Status</button>
+                        <button onclick="deleteSite(${s.id})" class="text-red-600 hover:underline">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Populate audit log
+            const logs = await auditRes.json();
+            const auditTbody = document.getElementById('audit-log-table').querySelector('tbody');
+            auditTbody.innerHTML = logs.map(l => `
+                <tr class="border-b">
+                    <td class="p-3">${new Date(l.timestamp).toLocaleString()}</td>
+                    <td class="p-3">${l.user_id || 'N/A'}</td>
+                    <td class="p-3">${l.action}</td>
+                    <td class="p-3">${l.target_type || ''} ${l.target_id || ''}</td>
+                    <td class="p-3">${l.details || ''}</td>
+                </tr>
+            `).join('');
+
+        } catch (error) {
+            console.error('Error loading admin panel:', error);
+        }
+    }
+
+    // Admin: User Management
+    function showNewUserModal() {
+        const content = `
+            <h3 class="text-xl font-bold mb-4">Add New User</h3>
+            <form id="new-user-form">
+                <div class="mb-4"><label class="block text-sm">Full Name</label><input type="text" id="new-user-name" class="w-full p-2 border rounded" required></div>
+                <div class="mb-4"><label class="block text-sm">Email</label><input type="email" id="new-user-email" class="w-full p-2 border rounded" required></div>
+                <div class="mb-4"><label class="block text-sm">Password</label><input type="password" id="new-user-password" class="w-full p-2 border rounded" required></div>
+                <div class="mb-4"><label class="block text-sm">Role</label><select id="new-user-role" class="w-full p-2 border rounded"><option value="technician">Technician</option><option value="admin">Admin</option><option value="executive">Executive</option></select></div>
+                <div class="flex justify-end gap-4 mt-6">
+                    <button type="button" onclick="hideModal()" class="px-4 py-2 bg-slate-200 rounded">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Save User</button>
+                </div>
+            </form>
+        `;
+        showModal(content);
+        document.getElementById('new-user-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                full_name: document.getElementById('new-user-name').value,
+                email: document.getElementById('new-user-email').value,
+                password: document.getElementById('new-user-password').value,
+                role: document.getElementById('new-user-role').value
+            };
+            try {
+                const response = await fetchWithAuth('/users', { method: 'POST', body: data });
+                if (response.ok) {
+                    hideModal();
+                    loadAdmin();
+                } else {
+                    alert((await response.json()).error);
+                }
+            } catch (error) { alert(error.message); }
+        });
+    }
+
+    async function deleteUser(userId) {
+        if (!confirm('Are you sure you want to delete this user? This is a soft delete.')) return;
+        try {
+            const response = await fetchWithAuth(`/users/${userId}`, { method: 'DELETE' });
+            if (response.ok) loadAdmin();
+            else alert((await response.json()).error);
+        } catch (error) { alert(error.message); }
+    }
+    
+    // Admin: Site Management
+    function showNewSiteModal() {
+        const content = `
+            <h3 class="text-xl font-bold mb-4">Add New Site</h3>
+            <form id="new-site-form">
+                <div class="mb-4"><label class="block text-sm">Site Name</label><input type="text" id="new-site-name" class="w-full p-2 border rounded" required></div>
+                <div class="mb-4"><label class="block text-sm">Address</label><input type="text" id="new-site-address" class="w-full p-2 border rounded" required></div>
+                <div class="mb-4"><label class="block text-sm">Status</label><select id="new-site-status" class="w-full p-2 border rounded"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+                <div class="flex justify-end gap-4 mt-6">
+                    <button type="button" onclick="hideModal()" class="px-4 py-2 bg-slate-200 rounded">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Save Site</button>
+                </div>
+            </form>
+        `;
+        showModal(content);
+        document.getElementById('new-site-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('new-site-name').value,
+                address: document.getElementById('new-site-address').value,
+                status: document.getElementById('new-site-status').value
+            };
+            try {
+                const response = await fetchWithAuth('/sites', { method: 'POST', body: data });
+                if (response.ok) {
+                    hideModal();
+                    loadAdmin();
+                } else {
+                    alert((await response.json()).error);
+                }
+            } catch (error) { alert(error.message); }
+        });
+    }
+
+    async function toggleSiteStatus(siteId, currentStatus) {
+        const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+        try {
+            const response = await fetchWithAuth(`/sites/${siteId}`, { method: 'PUT', body: { status: newStatus } });
+            if (response.ok) loadAdmin();
+            else alert((await response.json()).error);
+        } catch (error) { alert(error.message); }
+    }
+
+    async function deleteSite(siteId) {
+        if (!confirm('Are you sure you want to delete this site?')) return;
+        try {
+            const response = await fetchWithAuth(`/sites/${siteId}`, { method: 'DELETE' });
+            if (response.ok) loadAdmin();
+            else alert((await response.json()).error);
+        } catch (error) { alert(error.message); }
+    }
+
+</script>
+</body>
+</html>
