@@ -1,19 +1,15 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enterprise MeterIQ Suite</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js for data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <!-- Custom Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Feather Icons for a clean look -->
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 
     <style>
@@ -55,7 +51,6 @@
 </head>
 <body class="antialiased text-slate-700">
 
-    <!-- Login Container -->
     <div id="login-container" class="min-h-screen flex items-center justify-center bg-slate-100 p-4">
         <div class="w-full max-w-md">
             <div class="bg-white p-8 rounded-2xl shadow-lg">
@@ -77,7 +72,6 @@
         </div>
     </div>
 
-    <!-- OTP Verification Container -->
     <div id="otp-container" class="min-h-screen flex items-center justify-center bg-slate-100 p-4 hidden">
         <div class="w-full max-w-md">
             <div class="bg-white p-8 rounded-2xl shadow-lg">
@@ -95,10 +89,8 @@
         </div>
     </div>
 
-    <!-- Main Application Container -->
     <div id="app-container" class="hidden">
         <div class="flex h-screen bg-slate-100">
-            <!-- Sidebar Navigation -->
             <aside id="sidebar" class="w-64 bg-white shadow-md flex flex-col">
                 <div class="p-6 border-b border-slate-200">
                     <img src="logo.png" alt="MeterIQ" class="h-8 mb-2">
@@ -138,13 +130,10 @@
                 </div>
             </aside>
 
-            <!-- Main Content Area -->
             <main class="flex-1 p-6 lg:p-8 overflow-y-auto">
                 <div id="main-content">
-                    <!-- Dashboard Content -->
                     <div id="dashboard-content">
                         <h2 class="text-3xl font-bold text-slate-800 mb-6">Dashboard</h2>
-                        <!-- KPIs -->
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                             <div class="bg-white p-6 rounded-xl shadow-sm"><h3 id="total-readings" class="text-3xl font-bold">0</h3><p class="text-slate-500">Total Readings</p></div>
                             <div class="bg-white p-6 rounded-xl shadow-sm"><h3 id="critical-alerts" class="text-3xl font-bold text-red-500">0</h3><p class="text-slate-500">Critical Alerts</p></div>
@@ -152,20 +141,18 @@
                             <div class="bg-white p-6 rounded-xl shadow-sm"><h3 id="active-sites" class="text-3xl font-bold">0</h3><p class="text-slate-500">Active Sites</p></div>
                             <div class="bg-white p-6 rounded-xl shadow-sm"><h3 id="co2-reduction" class="text-3xl font-bold">0</h3><p class="text-slate-500">CO2 Reduction</p></div>
                         </div>
-                        <!-- Recent Activity & Alerts -->
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div>
+                            <div class="bg-white p-6 rounded-xl shadow-sm">
                                 <h3 class="text-xl font-bold text-slate-800 mb-4">Recent Readings</h3>
-                                <div id="recent-activity" class="bg-white p-4 rounded-xl shadow-sm space-y-3"></div>
+                                <div id="recent-activity" class="space-y-4"></div>
                             </div>
-                            <div>
+                            <div class="bg-white p-6 rounded-xl shadow-sm">
                                 <h3 class="text-xl font-bold text-slate-800 mb-4">Open Alerts</h3>
-                                <div id="alerts" class="bg-white p-4 rounded-xl shadow-sm space-y-3"></div>
+                                <div id="alerts" class="space-y-4"></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Submit Reading Content -->
                     <div id="submit-reading-content">
                         <h2 class="text-3xl font-bold text-slate-800 mb-6">Submit Meter Reading</h2>
                         <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-sm">
@@ -204,14 +191,23 @@
                         </div>
                     </div>
                     
-                    <!-- Tasks Content -->
                     <div id="tasks-content">
                         <h2 class="text-3xl font-bold text-slate-800 mb-6">Tasks</h2>
                         <div id="tasks-list" class="bg-white p-6 rounded-xl shadow-sm mb-8">
                             <h3 class="text-xl font-bold text-slate-800 mb-4">My Tasks</h3>
                             <div class="overflow-x-auto">
                                 <table class="w-full text-sm text-left" id="tasks-table">
-                                    <thead class="text-xs text-slate-500 uppercase bg-slate-50"><tr><th class="p-3">Description</th><th class="p-3">Site</th><th class="p-3">Meter</th><th class="p-3">Status</th><th class="p-3">Due Date</th><th class="p-3">Actions</th></tr></thead>
+                                    <thead class="text-xs text-slate-500 uppercase bg-slate-50">
+                                        <tr>
+                                            <th class="p-3">Description</th>
+                                            <th class="p-3">Technician</th>
+                                            <th class="p-3">Site</th>
+                                            <th class="p-3">Meter</th>
+                                            <th class="p-3">Status</th>
+                                            <th class="p-3">Due Date</th>
+                                            <th class="p-3">Actions</th>
+                                        </tr>
+                                    </thead>
                                     <tbody></tbody>
                                 </table>
                             </div>
@@ -244,7 +240,6 @@
                         </div>
                     </div>
                     
-                    <!-- Reports Content -->
                     <div id="reports-content">
                         <h2 class="text-3xl font-bold text-slate-800 mb-6">Generate Report</h2>
                         <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-sm">
@@ -271,7 +266,6 @@
                         </div>
                     </div>
 
-                    <!-- Analytics Content -->
                     <div id="analytics-content">
                         <h2 class="text-3xl font-bold text-slate-800 mb-6">Analytics</h2>
                         <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
@@ -306,10 +300,8 @@
                         </div>
                     </div>
 
-                    <!-- Admin Content -->
                     <div id="admin-content">
                         <h2 class="text-3xl font-bold text-slate-800 mb-6">Admin Panel</h2>
-                        <!-- User Management -->
                         <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="text-xl font-bold text-slate-800">User Management</h3>
@@ -322,7 +314,6 @@
                                 </table>
                             </div>
                         </div>
-                        <!-- Site Management -->
                         <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="text-xl font-bold text-slate-800">Site Management</h3>
@@ -335,7 +326,6 @@
                                 </table>
                             </div>
                         </div>
-                        <!-- Audit Log -->
                         <div class="bg-white p-6 rounded-xl shadow-sm">
                             <h3 class="text-xl font-bold text-slate-800 mb-4">Audit Log</h3>
                             <div class="overflow-x-auto max-h-96">
@@ -351,16 +341,14 @@
         </div>
     </div>
     
-    <!-- Generic Modal Structure -->
-    <div id="modal-container" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
-        <div id="modal-content" class="bg-white rounded-2xl shadow-lg w-full max-w-md p-8 modal-enter">
-            <!-- Modal content will be injected here -->
-        </div>
+    <div id="modal-container" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+        <div id="modal-content" class="bg-white rounded-2xl shadow-lg w-full max-w-lg p-8 modal-enter">
+            </div>
     </div>
 
 <script>
     // --- CONFIGURATION ---
-    const API_BASE = 'https://meter-iq-backend.onrender.com/api'; // Updated to absolute URL
+    const API_BASE = '/api'; // Use relative path for deployment
     let currentUserId = null;
     let currentUser = null;
     let readingsChart = null;
@@ -624,33 +612,112 @@
 
             const readings = await readingsRes.json();
             const activityList = document.getElementById('recent-activity');
-            activityList.innerHTML = readings.readings.length ? readings.readings.map(r => `
-                <div class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50">
-                    <div>
-                        <p class="font-semibold text-sm">${r.site_name} - ${r.meter_identifier}</p>
-                        <p class="text-xs text-slate-500">${new Date(r.reading_date).toLocaleString()}</p>
+            activityList.innerHTML = readings.readings.length ? readings.readings.map(r => {
+                const statusClasses = {
+                    'critical': 'bg-red-100 text-red-700',
+                    'warning': 'bg-yellow-100 text-yellow-700',
+                    'normal': 'bg-green-100 text-green-700'
+                };
+                return `
+                <div class="border-b border-slate-200 pb-3 last:border-b-0 last:pb-0">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-semibold text-sm">${r.site_name} - ${r.meter_identifier}</p>
+                            <p class="text-xs text-slate-500">${new Date(r.reading_date).toLocaleString()}</p>
+                        </div>
+                        <span class="text-sm font-bold ${r.status === 'critical' ? 'text-red-500' : r.status === 'warning' ? 'text-yellow-500' : 'text-green-500'}">${r.reading_value.toFixed(2)}</span>
                     </div>
-                    <span class="text-sm font-bold ${r.status === 'critical' ? 'text-red-500' : r.status === 'warning' ? 'text-yellow-500' : 'text-green-500'}">${r.reading_value.toFixed(2)}</span>
-                    ${currentUser.role === 'admin' && !r.approved ? `<button onclick="approveReading(${r.id})" class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full hover:bg-green-200 ml-2">Approve</button>` : ''}
+                    <div class="flex items-center justify-start gap-2 mt-2">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full ${statusClasses[r.status]}">${r.status}</span>
+                        ${r.approved ? `<span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">Approved</span>` : `<span class="px-2 py-1 text-xs font-medium rounded-full bg-slate-200 text-slate-600">Pending</span>`}
+                        ${currentUser.role === 'admin' ? `<button onclick="showReadingDetailsModal(${r.id})" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded-full">View</button>` : ''}
+                        ${currentUser.role === 'admin' && !r.approved ? `<button onclick="approveReading(${r.id})" class="text-xs bg-green-200 hover:bg-green-300 text-green-800 px-3 py-1 rounded-full">Approve</button>` : ''}
+                    </div>
                 </div>
-            `).join('') : '<p class="text-center text-slate-500 p-4">No recent readings.</p>';
+            `}).join('') : '<p class="text-center text-slate-500 p-4">No recent readings.</p>';
+
 
             const alerts = await alertsRes.json();
             const alertsList = document.getElementById('alerts');
             alertsList.innerHTML = alerts.alerts.length ? alerts.alerts.map(a => `
-                <div class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50">
+                <div class="flex items-center justify-between p-3 rounded-lg bg-red-50 border border-red-200">
                     <div>
-                        <p class="font-semibold text-sm">${a.site_name} - ${a.meter_identifier}</p>
-                        <p class="text-xs text-slate-500">${a.message}</p>
+                        <p class="font-semibold text-sm text-red-800">${a.site_name} - ${a.meter_identifier}</p>
+                        <p class="text-xs text-red-600">${a.message}</p>
                     </div>
-                    ${currentUser.role !== 'executive' ? `<button onclick="resolveAlert(${a.id})" class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full hover:bg-blue-200">Resolve</button>` : ''}
+                    ${currentUser.role !== 'executive' ? `<button onclick="resolveAlert(${a.id})" class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 font-semibold">Resolve</button>` : ''}
                 </div>
             `).join('') : '<p class="text-center text-slate-500 p-4">No open alerts.</p>';
 
+            feather.replace(); // Re-initialize icons if any are added dynamically
         } catch (error) {
             console.error('Error loading dashboard:', error);
         }
     }
+    
+    async function showReadingDetailsModal(readingId) {
+        try {
+            const response = await fetchWithAuth(`/readings/${readingId}`);
+            if (!response.ok) {
+                alert('Could not fetch reading details.');
+                return;
+            }
+            const r = await response.json();
+            
+            const statusClasses = {
+                'critical': 'bg-red-100 text-red-700',
+                'warning': 'bg-yellow-100 text-yellow-700',
+                'normal': 'bg-green-100 text-green-700'
+            };
+
+            const modalHTML = `
+                <h3 class="text-xl font-bold mb-4">Reading Details</h3>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm text-slate-500">Site / Meter</p>
+                        <p class="font-semibold">${r.site_name} / ${r.meter_identifier}</p>
+                    </div>
+                     <div>
+                        <p class="text-sm text-slate-500">Reading Value</p>
+                        <p class="font-semibold text-2xl">${r.reading_value.toFixed(2)}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-500">Date</p>
+                        <p class="font-semibold">${new Date(r.reading_date).toLocaleString()}</p>
+                    </div>
+                     <div>
+                        <p class="text-sm text-slate-500">Status & Approval</p>
+                        <div class="flex items-center gap-2 mt-1">
+                             <span class="px-2 py-1 text-xs font-medium rounded-full ${statusClasses[r.status]}">${r.status}</span>
+                             ${r.approved ? `<span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">Approved</span>` : `<span class="px-2 py-1 text-xs font-medium rounded-full bg-slate-200 text-slate-600">Pending Approval</span>`}
+                        </div>
+                    </div>
+                    ${r.comments ? `
+                    <div>
+                        <p class="text-sm text-slate-500">Comments</p>
+                        <p class="p-3 bg-slate-50 rounded-lg text-sm">${r.comments}</p>
+                    </div>` : ''}
+                    
+                    ${r.photo_url ? `
+                    <div>
+                        <p class="text-sm text-slate-500 mb-2">Photo Evidence</p>
+                        <a href="${r.photo_url}" target="_blank" rel="noopener noreferrer">
+                           <img src="${r.photo_url}" alt="Meter Reading Photo" class="w-full h-auto max-h-64 object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity">
+                        </a>
+                    </div>` : '<p class="text-sm text-slate-500 text-center p-4 bg-slate-50 rounded-lg">No photo was uploaded for this reading.</p>'}
+                    
+                    <div class="flex justify-end gap-4 mt-6">
+                        <button type="button" onclick="hideModal()" class="px-4 py-2 bg-slate-200 rounded-lg font-semibold hover:bg-slate-300">Close</button>
+                    </div>
+                </div>
+            `;
+            showModal(modalHTML);
+        } catch (error) {
+            console.error("Error showing reading details:", error);
+            alert('An error occurred.');
+        }
+    }
+
 
     async function approveReading(readingId) {
         if (!confirm('Are you sure you want to approve this reading?')) return;
@@ -762,15 +829,16 @@
             tasksTbody.innerHTML = tasks.tasks.length ? tasks.tasks.map(t => `
                 <tr class="border-b">
                     <td class="p-3">${t.description}</td>
-                    <td class="p-3">${t.site_id}</td>
-                    <td class="p-3">${t.meter_id || 'N/A'}</td>
+                    <td class="p-3">${t.technician_name || 'Unassigned'}</td>
+                    <td class="p-3">${t.site_name}</td>
+                    <td class="p-3">${t.meter_identifier || 'N/A'}</td>
                     <td class="p-3">${t.status}</td>
                     <td class="p-3">${t.due_date || 'N/A'}</td>
                     <td class="p-3">
                         ${currentUser.role === 'technician' && t.status === 'pending' ? `<button onclick="markTaskCompleted(${t.id})" class="text-blue-600 hover:underline">Mark Completed</button>` : ''}
                     </td>
                 </tr>
-            `).join('') : '<tr><td colspan="6" class="p-3 text-center text-slate-500">No tasks</td></tr>';
+            `).join('') : '<tr><td colspan="7" class="p-3 text-center text-slate-500">No tasks</td></tr>';
 
             document.getElementById('assign-task-form').classList.toggle('hidden', currentUser.role !== 'admin');
             if (currentUser.role === 'admin') {
